@@ -1,0 +1,16 @@
+<!-- templates/recommended_jobs.html -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Önerilen İlanlar</title>
+</head>
+<body>
+    <h1>{{ user.username }} için Önerilen İlanlar:</h1>
+    <ul>
+        {% for ilan in recommended_jobs %}
+            <li>İlan ID: {{ ilan.İLAN_ID }}, İlan ADI: {{ ilan.İLAN_ADI }} , İlan Tipi: {{ ilan.İLAN_TİPİ }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

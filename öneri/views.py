@@ -72,7 +72,7 @@ def get_relevant_applications(request, userid):
     ilanlar = Advert.objects.all()
 
     vectorizer = TfidfVectorizer(stop_words='english')
-    tfidf_matrix = vectorizer.fit_transform([cv_text] + [ilan.category + " " + ilan.description for ilan in ilanlar])
+    tfidf_matrix = vectorizer.fit_transform([cv_text] + [ilan.category + " " + ilan.description for ilan in ilanlar if ilan.category and ilan.description])
 
     benzerlik_skorlari = linear_kernel(tfidf_matrix[0:1], tfidf_matrix[1:]).flatten()
     benzer_ilanlar = sorted(list(enumerate(benzerlik_skorlari)), key=lambda x: x[1], reverse=True)[1:]
@@ -86,7 +86,7 @@ def get_relevant_applications(request, userid):
     cv_data = [{'id': data['id'], 'category': data['category'], 'description': data['description']} for data in all_cv_data]
 
     tfidf_vectorizer = TfidfVectorizer()
-    tfidf_matrix = tfidf_vectorizer.fit_transform([data['category'] + " " + data['description'] for data in cv_data])
+    tfidf_matrix = tfidf_vectorizer.fit_transform([data['category'] + " " + data['description'] for data in cv_data if data['category'] and data['description']])
     user_tfidf = tfidf_vectorizer.transform([user_cv])
     cosine_similarities_users = linear_kernel(user_tfidf, tfidf_matrix).flatten()
     similar_users_indices = cosine_similarities_users.argsort()[::-1]
@@ -102,41 +102,42 @@ def get_relevant_applications(request, userid):
         similar_user_id = cv_data[index]['id']
         user_applications = Application.objects.filter(userid=similar_user_id).values_list('advertid', flat=True)
         for advertid in user_applications:
-            ilan_info = Advert.objects.filter(id=advertid).values('id', 'title', 'category')[0]
+            ilan_info = Advert.objects.filter(id=advertid).values('id', 'title', 'category','location','startdate','enddate')[0]
             ilan_info["BENZERLIK_ORANI"] = cosine_similarities_users[index]
             relevant_applications.append(ilan_info)
 
     for advertid in past_application_ids:
-        ilan_info = Advert.objects.filter(id=advertid).values('id', 'title', 'category')[0]
+        ilan_info = Advert.objects.filter(id=advertid).values('id', 'title', 'category','location','startdate','enddate')[0]
         ilan_info["BENZERLIK_ORANI"] = 1
         relevant_applications.append(ilan_info)
 
     relevant_applications.sort(key=lambda x: x["BENZERLIK_ORANI"], reverse=True)
 
-    # Tekrarlanmayan ilanları saklamak için bir küme oluşturun
+    #ilanlar tekrarlanmasın diye küme oluşturdum
     printed_ilan_ids = set()
 
-    # Sonuçları JSON olarak döndürmek üzere hazırlayın
+   
     combined_results = []
     for ilan_info in relevant_applications:
         advertid = ilan_info['id']
         if advertid not in printed_ilan_ids:
             ilan_ad = ilan_info['title']
             ilan_alan = ilan_info['category']
-            benzerlik_orani = ilan_info['BENZERLIK_ORANI']
+            ilan_location = ilan_info['location']
+            ilan_baslangic = ilan_info['startdate']
+            ilan_son = ilan_info['enddate']
             result_dict = {
                 "İLAN İD": advertid,
                 "İLAN ADI": ilan_ad,
                 "İLAN ALAN": ilan_alan,
-                "BENZERLIK_ORANI": benzerlik_orani,
+                "İLAN KONUM": ilan_location,
+                "İLAN BAŞLANGIÇ TARİHİ": ilan_baslangic,
+                "İLAN BİTİŞ TARİHİ": ilan_son,
             }
             combined_results.append(result_dict)
             printed_ilan_ids.add(advertid)
 
     response_data = {
-        'user': {
-            'id': userid,
-        },
         'combined_jobs': combined_results,
     }
 

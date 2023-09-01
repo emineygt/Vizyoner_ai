@@ -159,7 +159,6 @@ class DdCompany(models.Model):
 
 class DdResume(models.Model):
     category = models.TextField()
-    tc = models.BigIntegerField(unique=True)
     phone = models.TextField()
     image = models.BinaryField()
     country = models.TextField()
@@ -168,7 +167,6 @@ class DdResume(models.Model):
     gpa = models.DecimalField(max_digits=5, decimal_places=2)
     grade = models.TextField()
     department = models.TextField()
-    resume_file = models.BinaryField()
     description = models.TextField()
     user = models.ForeignKey('DdUser', models.DO_NOTHING)
 
@@ -250,7 +248,6 @@ class Projects(models.Model):
 
 class Resume(models.Model):
     category = models.TextField(blank=True, null=True)
-    tc = models.BigIntegerField(unique=True)
     phone = models.TextField(blank=True, null=True)
     image = models.BinaryField(blank=True, null=True)
     country = models.TextField(blank=True, null=True)
@@ -259,7 +256,6 @@ class Resume(models.Model):
     gpa = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
     grade = models.TextField(blank=True, null=True)
     department = models.TextField(blank=True, null=True)
-    resumefile = models.BinaryField(blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     userid = models.ForeignKey('User', models.DO_NOTHING, db_column='userid', blank=True, null=True)
 
@@ -273,7 +269,7 @@ class User(models.Model):
     lastname = models.TextField()
     email = models.TextField()
     password = models.TextField()
-    role = models.IntegerField()
+    #role = models.IntegerField()
 
     class Meta:
         managed = False
@@ -289,6 +285,7 @@ class neriAdvert(models.Model):
     image = models.BinaryField()
     location = models.TextField()
     category = models.TextField()
+    advertcategory = models.TextField()
     company = models.ForeignKey('neriCompany', models.DO_NOTHING)
 
     class Meta:
@@ -322,7 +319,6 @@ class neriCompany(models.Model):
 
 class neriResume(models.Model):
     category = models.TextField()
-    tc = models.BigIntegerField(unique=True)
     phone = models.TextField()
     image = models.BinaryField()
     country = models.TextField()
@@ -331,7 +327,6 @@ class neriResume(models.Model):
     gpa = models.DecimalField(max_digits=5, decimal_places=2)
     grade = models.TextField()
     department = models.TextField()
-    resume_file = models.BinaryField()
     description = models.TextField()
     user = models.ForeignKey('neriUser', models.DO_NOTHING)
 
